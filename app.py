@@ -13,6 +13,10 @@ DB_URL = os.getenv("DB_URL")                    # クラウドDBへ接続する�
 
 app = Flask(__name__)
 
+@app.route("/")
+def index():
+    return "Flask is running"
+
 @app.route("/login/github")
 def github_login():
     github_login_url = f"https://github.com/login/oauth/authorize?client_id={CLIENT_ID}"
