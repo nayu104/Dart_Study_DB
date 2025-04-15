@@ -15,7 +15,7 @@ app = Flask(__name__)
 
 @app.route("/login/github")
 def github_login():
-    github_login_url = "https://github.com/login/oauth/authorize?client_id=YOUR_CLIENT_ID"
+    github_login_url = f"https://github.com/login/oauth/authorize?client_id={CLIENT_ID}"
     return redirect(github_login_url)
 
 
