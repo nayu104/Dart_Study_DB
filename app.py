@@ -2,6 +2,7 @@ from flask import Flask, redirect
 import psycopg2
 import os
 from dotenv import load_dotenv #envファイル読み込み用
+import requests 
 
 load_dotenv()#.envファイル読み込み
 
@@ -15,14 +16,14 @@ app = Flask(__name__)
 
 @app.route("/login/github")
 def github_login():
-    github_login_url = "https://github.com/login/oauth/authorize?client_id=YOUR_CLIENT_ID"
-    return redirect(github_login_url)
+    github_login_url = f"https://github.com/login/oauth/authorize?client_id={CLIENT_ID}"
+    return redirect(github_login_url)#redirectはそのURLに飛ばすための関数
 
 
 #本人確認書類＆チケット引き換え
 @app.route("/callback/github")
 def github_callback():
-    code = request.args.get("code")#Gユーザーが許可するとGitHubから一時codeが返ってくる
+    code = request.args.get("code")#ユーザーが許可するとGitHubから一時codeが返ってくる
 
     token_res = requests.post(
         "https://github.com/login/oauth/access_token",
@@ -40,7 +41,7 @@ def github_callback():
     #GitHubのAPIを叩いて、ユーザー情報を取得する
     user_res = requests.get(
     "https://api.github.com/user",#logn=name,id,avatar_urlなど入ってる
-        headers={"Authorization":f"Bearer{access_token}"} # ← GitHubが「こうして」と決めた書き方、というか標準的な記述
+        headers={"Authorization":f"Bearer {access_token}"} # ← GitHubが「こうして」と決めた書き方、というか標準的な記述
     )
     user_data = user_res.json()#ここでlogin=nameとかもらってる
 
