@@ -2,6 +2,7 @@ from flask import Flask, redirect, request
 import psycopg2
 import os
 from dotenv import load_dotenv #envファイル読み込み用
+import requests
 
 load_dotenv()#.envファイル読み込み
 
