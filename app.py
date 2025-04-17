@@ -48,6 +48,7 @@ def github_callback():
         headers={"Authorization":f"Bearer {access_token}"} # ← GitHubが「こうして」と決めた書き方、というか標準的な記述
     )
     user_data = user_res.json()#ここでlogin=nameとかもらってる
+    print(user_data)#エラー解析
 
     conn = psycopg2.connect(DB_URL)
     cur = conn.cursor()
