@@ -2,7 +2,7 @@ from flask import Flask, redirect, request
 import psycopg2
 import os
 from dotenv import load_dotenv #envファイル読み込み用
-import requests
+import requests 
 
 load_dotenv()#.envファイル読み込み
 
@@ -21,13 +21,13 @@ def index():
 @app.route("/login/github")
 def github_login():
     github_login_url = f"https://github.com/login/oauth/authorize?client_id={CLIENT_ID}"
-    return redirect(github_login_url)
+    return redirect(github_login_url)#redirectはそのURLに飛ばすための関数
 
 
 #本人確認書類＆チケット引き換え
 @app.route("/callback/github")
 def github_callback():
-    code = request.args.get("code")#Gユーザーが許可するとGitHubから一時codeが返ってくる
+    code = request.args.get("code")#ユーザーが許可するとGitHubから一時codeが返ってくる
 
     token_res = requests.post(
         "https://github.com/login/oauth/access_token",
@@ -45,7 +45,7 @@ def github_callback():
     #GitHubのAPIを叩いて、ユーザー情報を取得する
     user_res = requests.get(
     "https://api.github.com/user",#logn=name,id,avatar_urlなど入ってる
-        headers={"Authorization":f"Bearer{access_token}"} # ← GitHubが「こうして」と決めた書き方、というか標準的な記述
+        headers={"Authorization":f"Bearer {access_token}"} # ← GitHubが「こうして」と決めた書き方、というか標準的な記述
     )
     user_data = user_res.json()#ここでlogin=nameとかもらってる
 
@@ -55,7 +55,7 @@ def github_callback():
     cur.execute("""
         INSERT INTO users (github_id,user_name,avatar_url)
         VALUES(%s,%s,%s)
-        ON CONFLICT (github_id) DO UPDATE 
+        ON CONFLICT (github_id) DO UPDATE
         SET user_name = EXCLUDED.user_name,
         avatar_url = EXCLUDED.avatar_url
     """,(
@@ -64,13 +64,14 @@ def github_callback():
         user_data["avatar_url"]
     ))
 
-    return f"""
-    ようこそ {user_data['login']} さん！<br>
-    あなたのGitHub IDは {user_data['id']} です。<br>
-    <img src="{user_data['avatar_url']}" width="100">
-    """
-
-
+     from urllib.parse import urlencode#URLに文字列を安全に含ませるためのモジュール
+    flutter_url = "techcircle://login_success" 
+    query = urlencode({
+        "id": user_data["id"],
+        "name": user_data["login"],
+        "avatar": user_data["avatar_url"]
+    })
+    return redirect(f"{flutter_url}?{query}")#追加データ（クエリパラメーター）をURLに付与
 
 if __name__ == "__main__":
     app.run(debug=True)
