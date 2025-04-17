@@ -64,7 +64,7 @@ def github_callback():
         user_data["avatar_url"]
     ))
 
-     from urllib.parse import urlencode#URLに文字列を安全に含ませるためのモジュール
+    from urllib.parse import urlencode#URLに文字列を安全に含ませるためのモジュール
     flutter_url = "techcircle://login_success" 
     query = urlencode({
         "id": user_data["id"],
