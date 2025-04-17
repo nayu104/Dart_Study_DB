@@ -51,7 +51,7 @@ def github_callback():
     print(user_data)#エラー解析
 
     if "id" not in user_data:
-        print("⚠️ GitHub API 認証失敗: ", user_data)
+        print("⚠ GitHub API 認証失敗: ", user_data)
         return "GitHub 認証に失敗しました", 401
 
     try:
@@ -59,9 +59,9 @@ def github_callback():
         cur = conn.cursor()
         cur.execute("SELECT 1")
         conn.close()
-        print("✅ DB接続OK")
+        print("〇DB接続OK")
     except Exception as e:
-        print("❌ DB接続失敗:", e)
+        print("✖DB接続失敗:", e)
 
     
     conn = psycopg2.connect(DB_URL)
