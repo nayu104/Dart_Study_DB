@@ -50,6 +50,16 @@ def github_callback():
     user_data = user_res.json()#ここでlogin=nameとかもらってる
     print(user_data)#エラー解析
 
+    try:
+    conn = psycopg2.connect(DB_URL)
+    cur = conn.cursor()
+    cur.execute("SELECT 1")
+    conn.close()
+    print("✅ DB接続OK")
+except Exception as e:
+    print("❌ DB接続失敗:", e)
+
+    
     conn = psycopg2.connect(DB_URL)
     cur = conn.cursor()
 
