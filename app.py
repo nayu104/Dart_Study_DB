@@ -50,6 +50,10 @@ def github_callback():
     user_data = user_res.json()#ここでlogin=nameとかもらってる
     print(user_data)#エラー解析
 
+    if "id" not in user_data:
+    print("⚠️ GitHub API 認証失敗: ", user_data)
+    return "GitHub 認証に失敗しました", 401
+
     try:
         conn = psycopg2.connect(DB_URL)
         cur = conn.cursor()
