@@ -80,7 +80,7 @@ def github_callback():
     ))
 
     from urllib.parse import urlencode#URLに文字列を安全に含ませるためのモジュール
-    flutter_url = "techcircle://login-callback"  
+    flutter_url = "techcircle://login_success" 
     query = urlencode({
         "id": user_data["id"],
         "name": user_data["login"],
