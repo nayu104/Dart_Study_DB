@@ -18,8 +18,6 @@ app = Flask(__name__)
 def index():
     return "Flask起動中"
 
-@app.route("")
-
 @app.route("/login/github")
 def github_login():
     github_login_url = f"https://github.com/login/oauth/authorize?client_id={CLIENT_ID}"
