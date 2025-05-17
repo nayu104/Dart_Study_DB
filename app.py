@@ -1,4 +1,4 @@
-from flask import Flask, redirect
+from flask import Flask, redirect, request
 import psycopg2
 import os
 from dotenv import load_dotenv #envファイル読み込み用
@@ -13,6 +13,12 @@ DB_URL = os.getenv("DB_URL")                    # クラウドDBへ接続する�
 
 
 app = Flask(__name__)
+
+@app.route("/")
+def index():
+    return "Flask起動中"
+
+@app.route("")
 
 @app.route("/login/github")
 def github_login():
@@ -44,14 +50,29 @@ def github_callback():
         headers={"Authorization":f"Bearer {access_token}"} # ← GitHubが「こうして」と決めた書き方、というか標準的な記述
     )
     user_data = user_res.json()#ここでlogin=nameとかもらってる
+    print(user_data)#エラー解析
 
+    if "id" not in user_data:
+        print("⚠ GitHub API 認証失敗: ", user_data)
+        return "GitHub 認証に失敗しました", 401
+
+    try:
+        conn = psycopg2.connect(DB_URL)
+        cur = conn.cursor()
+        cur.execute("SELECT 1")
+        conn.close()
+        print("〇DB接続OK")
+    except Exception as e:
+        print("✖DB接続失敗:", e)
+
+    
     conn = psycopg2.connect(DB_URL)
     cur = conn.cursor()
 
     cur.execute("""
         INSERT INTO users (github_id,user_name,avatar_url)
         VALUES(%s,%s,%s)
-        ON CONFLICT (github_id) DO UPDATE 
+        ON CONFLICT (github_id) DO UPDATE
         SET user_name = EXCLUDED.user_name,
         avatar_url = EXCLUDED.avatar_url
     """,(
@@ -60,13 +81,14 @@ def github_callback():
         user_data["avatar_url"]
     ))
 
-    return f"""
-    ようこそ {user_data['login']} さん！<br>
-    あなたのGitHub IDは {user_data['id']} です。<br>
-    <img src="{user_data['avatar_url']}" width="100">
-    """
-
-
+    from urllib.parse import urlencode#URLに文字列を安全に含ませるためのモジュール
+    flutter_url = "techcircle://login_success" 
+    query = urlencode({
+        "id": user_data["id"],
+        "name": user_data["login"],
+        "avatar": user_data["avatar_url"]
+    })
+    return redirect(f"{flutter_url}?{query}")#追加データ（クエリパラメーター）をURLに付与
 
 if __name__ == "__main__":
     app.run(debug=True)
